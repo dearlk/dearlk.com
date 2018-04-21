@@ -3,20 +3,175 @@
   <head>
     <!-- Required meta tags -->
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css" integrity="sha384-9gVQ4dYFwwWSjIDZnLEWnxCjeSWFphJiwGPXr1jddIhOegiu1FwO5qRGvFXOdJZ4" crossorigin="anonymous">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <link href="https://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet">
 
     <title>dearlk</title>
+    <style>
+    body {
+    font: 20px "Montserrat", sans-serif;
+    line-height: 1.8;
+    color: #f5f6f7;
+}
+
+p {font-size: 16px;}
+.margin {margin-bottom: 45px;}
+      .bg-1 {
+       background-color: #1abc9c; /* Green */
+        color: #ffffff;
+      }
+      .bg-2 {
+      background-color: #474e5d; /* Dark Blue */
+      color: #ffffff;
+      }
+      .bg-3 {
+      background-color: #ffffff; /* White */
+      color: #555555;
+      }
+      .container-fluid {
+        padding-top: 70px;
+        padding-bottom: 70px;
+      }
+      .navbar {
+    padding-top: 15px;
+    padding-bottom: 15px;
+    border: 0;
+    border-radius: 0;
+    margin-bottom: 0;
+    font-size: 12px;
+    letter-spacing: 5px;
+}
+.bg-4 {
+    background-color: #2f2f2f;
+    color: #ffffff;
+}
+.navbar-nav li a:hover {
+    color: #ff0000 !important;
+}
+.navbar-nav a {
+    color: white !important;
+}
+.navbar-brand { color:white;}
+    </style>
   </head>
-  <body class="bg-secondary">
-    <h1 class="text-center">Hello, world!</h1>
-    <!-- Optional JavaScript -->
-    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js" integrity="sha384-cs/chFZiN24E4KMATLdqdvsezGxaGsi4hLGOzlXwp5UZB1LY//20VyM2taTB4QvJ" crossorigin="anonymous"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js" integrity="sha384-uefMccjFJAIv6A+rW+L4AHf99KvxDjWSu1z9VI8SKNVmz4sk7buKt/6v9KI65qnm" crossorigin="anonymous"></script>
+  <body>
+   <nav class="navbar bg-primary">
+  <div class="container">
+    <div class="navbar-header text-white">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="#">dearlk</a>
+    </div>
+    <div class="collapse navbar-collapse" id="myNavbar">
+      <ul class="nav navbar-nav navbar-right">
+        <li><a href="#">WHO</a></li>
+        <li><a href="#">WHAT</a></li>
+        <li><a href="#">WHERE</a></li>
+      </ul>
+    </div>
+  </div>
+</nav> 
+
+
+<!--header section-->
+<header>
+<div class="jumbotron jumbotron-fluid" id="banner">       
+<div class="parallax text-center" style="background-image: url(images/cover.jpg);">
+<div class="parallax-pattern-overlay">
+<div class="container text-center" style="height:580px;padding-top:170px;">
+<a href="#"><img id="site-title" src="img/logo.png" alt="logo"/></a>
+<h2 class="display-2">Boostrap 4 Alpha is here!</h2>
+<h3 class="learn">Wanna know how to use it?</h3>
+</div>
+</div>
+</div>
+</header>
+
+        <div class="container-fluid bg-info text-center">
+          <h3>Who Am I?</h3>
+          <img src="images/bird150.jpg" class="img-responsive img-circle" style="display:inline" alt="Bird">
+          <h3>I'm an adventurer</h3>
+        </div>
+
+        <div class="container-fluid text-center bg-primary">
+  <h3>What Am I?</h3>
+  <p>Lorem ipsum..</p>
+  <a href="#" class="btn btn-default btn-lg">
+  <span class="glyphicon glyphicon-search"></span> Search
+</a>
+</div>
+
+         <div class="container-fluid bg-3 text-center">
+  <h3>Where To Find Me?</h3>
+  <div class="row">
+    <div class="col-sm-4">
+      <p>Lorem ipsum..</p>
+      <img src="images/birds1.jpg"  class="img-responsive" style="width:100%" alt="Image">
+    </div>
+    <div class="col-sm-4">
+      <p>Lorem ipsum..</p>
+      <img src="images/birds2.jpg"  class="img-responsive" style="width:100%" alt="Image">
+    </div>
+    <div class="col-sm-4">
+      <p>Lorem ipsum..</p>
+      <img src="images/birds3.jpg"  class="img-responsive" style="width:100%" alt="Image">
+    </div>
+  </div>
+</div> 
+
+
+<!--Contact Us-->
+<!--
+<section class="contact" id="contact">
+<div class="container">
+<div class="row">
+<div class="col-lg-12">
+<div class="heading">
+<img class="dividerline" src="img/sep.png" alt="">
+<h2>Contact Us</h2>
+<img class="dividerline" src="img/sep.png" alt="">
+<h3>Feel free to reach out for any questions!
+</h3>
+</div>
+</div>
+</div>
+</div>
+<div class="container mx-width">
+<div class="row">
+<div class="done">
+<div class="alert alert-success">
+<button type="button" class="close" data-dismiss="alert">×</button>
+Your message has been sent. Thank you!
+</div>
+</div>
+<div class="col-md-12">
+<form>
+<fieldset class="form-group">
+<input type="text" class="form-control" id="Name" placeholder="Name">
+</fieldset>
+<fieldset class="form-group">
+<input type="email" class="form-control" id="Email" placeholder="Email">
+</fieldset>
+<fieldset class="form-group">
+<textarea class="form-control" rows="3" placeholder="Message"></textarea>
+</fieldset>
+<button type="submit" class="contact submit">Submit</button>
+</form>
+</div>
+</div>
+</div>
+</section>
+-->
+
+<footer class="container-fluid bg-4 text-center">
+  <p>Bootstrap Theme Made By <a href="https://www.w3schools.com">www.w3schools.com</a></p>
+</footer>
   </body>
 </html>
 
