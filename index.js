@@ -35,13 +35,11 @@ app.use(session({
   })
 }));
 
-// parse incoming requests
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
 
 
-app.use(express.static(path.join(__dirname, '/public')));
-app.set('views', path.join(__dirname, '/views'));
+
+app.use(express.static(path.join(__dirname, 'public')));
+app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
 // create a write stream (in append mode)
@@ -50,16 +48,11 @@ var accessLogStream = fs.createWriteStream(path.join(__dirname, 'dearlk-web.log'
 app.use(morgan('combined', {stream: accessLogStream}));
 
 // Require Main routes
-var routes = require('./app/routes/router.js');
+var routes = require('./routes/router.js');
 app.use ('/',routes);
 
 
-// catch 404 and forward to error handler
-app.use(function (req, res, next) {
-  var err = new Error('File Not Found');
-  err.status = 404;
-  next(err);
-});
+
 
 // error handler
 // define as the last app.use callback
