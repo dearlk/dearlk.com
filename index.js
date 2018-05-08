@@ -7,6 +7,15 @@ var mongoose = require('mongoose');
 var session = require('express-session');
 var MongoStore = require('connect-mongo')(session);
 
+/*
+var Ansible = require('node-ansible');
+var command = new Ansible.AdHoc().hosts('all').module('ping');
+var promise = command.exec();
+promise.then(function(result) {
+  console.log(result.output);
+  console.log(result.code);
+})
+*/
 
 
 // create express app

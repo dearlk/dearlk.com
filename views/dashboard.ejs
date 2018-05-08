@@ -6,48 +6,352 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-	
+    <!-- Add icon library -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="/css/loading.css"/>
+	<link rel="stylesheet" type="text/css" href="/css/loading-btn.css"/>
     <title>dearlk.com</title>
+	
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.1.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+	<% var hosts = ["dev", "test", "uat", "live"]; %>
+    
+   
+
+
+
+
+    <script type="text/javascript">
+			$(document).ready(function() {
+				
+				var close = document.getElementsByClassName("closebtn");
+				var i;
+					for (i = 0; i < close.length; i++) {
+					    close[i].onclick = function(){
+					        var div = this.parentElement;
+					        div.style.opacity = "0";
+					        setTimeout(function(){ div.style.display = "none"; }, 600);
+					    }
+					}
+
+				//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+				// pingServer 
+				//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+				function pingServer(server){
+					//$("#"+server+"_ping_info").html("<img src='/images/loading.gif'>");
+					//$("#"+server+"_mem_info").html("<img src='/images/loading.gif'>");
+					//$("#"+server+"_disk_info").html("<img src='/images/loading.gif'>");
+					$("#"+server+"_ping_btn").addClass('running');
+					//$("#"+server+"_ping_btn").html('<i class="fa fa-circle-o-notch fa-spin"></i>Ping');
+					//return
+			    	var parameters = {host: server + ".delapic"};
+	    			$.get('/pingServer',parameters, function(data) {
+	      				//$.each( data, function( key, val ) {
+    					//	alert("<li id='" + key + "'>" + val + "</li>");
+  						//});
+						var last_run = new Date();
+	      				if (data.code == "-1"){
+	      					$("#"+server+"_info").html("<p style='color:red'>"+data.msg+"</p>");
+	      					$("#"+server+"_ping_btn").removeClass('running');
+						    $("#"+server+"_ping_btn").css("background-color","red");
+	      					//$("#"+server+"_mem_info").html("");
+							//$("#"+server+"_disk_info").html("");
+							//$("#"+server+"_last_run").html(last_run);
+	      					return;
+	      				}else{
+	      				//var disk_total = Math.round ((((data.disk.block_total*data.disk.block_size)/1024)/1024)/1024);
+	      				//var disk_available = Math.round ((((data.disk.block_available*data.disk.block_size)/1024)/1024)/1024);
+	      				//var disk_used = Math.round ((((data.disk.block_used*data.disk.block_size)/1024)/1024)/1024);
+						//$("#"+server+"_ping_info").html(data.ping);
+						$("#"+server+"_ping_btn").removeClass('running');
+						$("#"+server+"_ping_btn").css("background-color","green");
+						//$("#"+server+"_mem_info").html("free: "+data.mem.free+"M, total: "+data.mem.total+"M, used: " + data.mem.used+"M");
+						//$("#"+server+"_disk_info").html("available: " + disk_available + "G, total: " + disk_total + "G, used: " + disk_used+"G");
+						$("#"+server+"_last_run").html(last_run);
+						}
+	    			});
+				}
+
+
+				//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+				// checkServer 
+				//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+				function checkServer(server){
+					//$("#"+server+"_ping_info").html("<img src='/images/loading.gif'>");
+					//$("#"+server+"_mem_info").html("<img src='/images/loading.gif'>");
+					//$("#"+server+"_disk_info").html("<img src='/images/loading.gif'>");
+					$("#"+server+"_check_btn").addClass('running');
+			    	var parameters = {host: server + ".delapic"};
+	    			$.get('/checkServer',parameters, function(data) {
+	      				//$.each( data, function( key, val ) {
+    					//	alert("<li id='" + key + "'>" + val + "</li>");
+  						//});
+						var last_run = new Date();
+	      				if (data.ping == "-1"){
+	      					$("#"+server+"_ping_info").html("<p style='color:red'>"+data.msg+"</p>");
+	      					//$("#"+server+"_mem_info").html("");
+							//$("#"+server+"_disk_info").html("");
+							$("#"+server+"_check_btn").removeClass('running');
+						    $("#"+server+"_check_btn").css("background-color","red");
+							$("#"+server+"_last_run").html(last_run);
+	      					return;
+	      				}else{
+	      					var disk_total = Math.round ((((data.disk.block_total*data.disk.block_size)/1024)/1024)/1024);
+	      					var disk_available = Math.round ((((data.disk.block_available*data.disk.block_size)/1024)/1024)/1024);
+	      					var disk_used = Math.round ((((data.disk.block_used*data.disk.block_size)/1024)/1024)/1024);
+							$("#"+server+"_ping_info").html(data.ping);
+							$("#"+server+"_mem_info").html("free: "+data.mem.free+"M, total: "+data.mem.total+"M, used: " + data.mem.used+"M");
+							$("#"+server+"_disk_info").html("available: " + disk_available + "G, total: " + disk_total + "G, used: " + disk_used+"G");
+							$("#"+server+"_last_run").html(last_run);
+							$("#"+server+"_check_btn").removeClass('running');
+						    $("#"+server+"_check_btn").css("background-color","green");
+
+						}
+	    			});
+				}
+
+				//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+				// actionServer 
+				//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+				function actionServer(server, task){
+					$("#"+server+"_" + task + "_btn").attr("disabled", "disabled");
+					var parameters = {host: server + ".delapic", action: task};
+
+	    			$.get('/actionServer', parameters, function(data) {
+	      				//$.each( data, function( key, val ) {
+    					//	alert("<li id='" + key + "'>" + val + "</li>");
+  						//});
+						var last_run = new Date();
+	      				//alert('got back now...');
+	      				if (data.code == "-1"){
+	      					$("#"+server+"_info").html("<p style='color:red'>"+data.msg+"</p>");
+	      					$("#"+server+"_info").show();
+	      					$("#"+server+"_" + task + "_btn").removeAttr("disabled");
+	      					$("#"+server+"_" + task + "_btn").css('background-color','red');
+	      				}else if (data.code == "0") {
+	      					$("#"+server+"_info").html(data.output);
+	      					$("#"+server+"_info").show();
+							$("#"+server+"_last_run").html(last_run);
+							$("#"+server+"_" + task + "_btn").removeAttr("disabled"); 
+							$("#"+server+"_" + task + "_btn").css('background-color','green');
+						}
+	    			});
+				}
+
+				//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+				// butten event handlers
+				//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+				//$("#dev_check_btn").click(function(){checkServer("dev")});
+				//$("#test_check_btn").click(function(){checkServer("test")});
+				//$("#uat_check_btn").click(function(){checkServer("uat")});
+				//$("#live_check_btn").click(function(){checkServer("live")});
+				//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+				// auto refresh handlers	
+				//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+				<% hosts.forEach(function(host) {%>
+					$("#<%= host %>_ping_btn").click(function(){pingServer("<%= host %>")});
+					$("#<%= host %>_check_btn").click(function(){checkServer("<%= host %>")});
+					$("#<%= host %>_shutdown_btn").click(function(){actionServer("<%= host %>", "shutdown")});
+					$("#<%= host %>_reboot_btn").click(function(){actionServer("<%= host %>","reboot")});
+					$("#<%= host %>_install_btn").click(function(){actionServer("<%= host %>","install")});
+					$("#<%= host %>_update_btn").click(function(){actionServer("<%= host %>","update")});
+
+					var <%= host %>_handler = null;
+					$("#<%= host %>_auto").click(function(){
+						var auto = $("#<%= host %>_auto").prop('checked');	
+						if (auto == true){
+							<%= host %>_handler = setInterval(function () {checkServer("<%= host %>")}, 60 * 1000);
+						} else
+						{
+							clearInterval(<%= host %>_handler);
+						}
+					});
+					//if auto already selected	
+					if ($("#<%= host %>_auto").prop('checked'))	{
+						checkServer("<%= host %>");
+						<%= host %>_handler = setInterval(function () {checkServer("<%= host %>")}, 60 * 1000);
+					}
+				<% }); %>
+			});	
+    </script>
 
     <style>
-	/* Intro */
-	#intro {
-		background: url("images/overlay.png"), url("/images/intro.jpg");
-		background-size: 256px 256px, cover;
-		background-attachment: fixed, fixed;
-		background-position: top left, bottom center;
-		background-repeat: repeat, no-repeat;
-	}
-	.content {color:#ffffff; text-align: center;}
-	/* Main */
+    /* Style buttons */
+		.buttonload {
+		    background-color: #4CAF50; /* Green background */
+		    border: none; /* Remove borders */
+		    color: white; /* White text */
+		    padding: 12px 16px; /* Some padding */
+		    font-size: 16px /* Set a font size */
+		}
+		.btn {
+		    border: none; /* Remove borders */
+		    color: white; /* Add a text color */
+		    padding: 10px 10px; /* Add some padding */
+		    cursor: pointer; /* Add a pointer cursor on mouse-over */
+		}
+
+			.success {background-color: #4CAF50;} /* Green */
+			.success:hover {background-color: #46a049;}
+
+			.info {background-color: #2196F3;} /* Blue */
+			.info:hover {background: #0b7dda;}
+
+			.warning {background-color: #ff9800;} /* Orange */
+			.warning:hover {background: #e68a00;}
+
+			.danger {background-color: #f44336;} /* Red */ 
+			.danger:hover {background: #da190b;}
+
+			.btn-default {background-color: #2196F3;; color: white;} /* Gray */ 
+			.btn-default:hover {background: #ddd; color:black;}
+
+			.card-title {color:blue;}
+			.alert {
+				    padding: 10px;
+				    background-color: #f44336;
+				    color: white;
+				    opacity: 1;
+				    transition: opacity 0.6s;
+				    margin-bottom: 5px;
+				}
+
+				.alert.success {background-color: #4CAF50;}
+				.alert.info {background-color: #2196F3;}
+				.alert.warning {background-color: #ff9800;}
+
+				.closebtn {
+				    margin-left: 15px;
+				    color: white;
+				    font-weight: bold;
+				    float: right;
+				    font-size: 22px;
+				    line-height: 20px;
+				    cursor: pointer;
+				    transition: 0.3s;
+				}
+
+				.closebtn:hover {
+				    color: black;
+				}
 	</style>
   </head>
 
   <body>
-	    <%- include('header'); -%>
-				
-					<div id="intro" class="content">
-					
-					  
-					  <p class="lead">This is a simple hero unit, a simple jumbotron-style component for calling extra attention to featured content or information.</p>
-					  <hr class="my-4">
-					  <p>It uses utility classes for typography and spacing to space content out within the larger container.</p>
-					
-					
-					  <p class="lead">This is a simple hero unit, a simple jumbotron-style component for calling extra attention to featured content or information.</p>
-					  <hr class="my-4">
-					  <p>It uses utility classes for typography and spacing to space content out within the larger container.</p>
-					    
-					
-					</div>
-				
-		<%- include('footer'); -%>
-	
+<div class="container-fluid">
 
-    <!-- Optional JavaScript -->
-    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+
+
+
+	<div class="row">
+
+		<% hosts.forEach(function(host) {%>
+
+		  <div class="col">
+		  	<!-- start of card -->
+		  	<div class="card" style="width: 18rem;">
+				  <!-- <div class="parallax text-center" style="background-image: url(/images/cover-a.jpg);"> -->
+					<div class="parallax text-center">
+
+
+				  <div class="card-body">
+				    <h3 class="card-title"><%= host %></h3>
+
+ 				    <p class="card-text" id="<%= host %>_ping_info">&nbsp;</p>
+				    <p class="card-text" id="<%= host %>_mem_info">&nbsp;</p>
+				    <p class="card-text" id="<%= host %>_disk_info">&nbsp;</p>
+				    <p class="card-text" id="<%= host %>_last_run">&nbsp;</p>
+
+				    <div class="btn btn-default ld-over" id="<%= host %>_ping_btn">Ping<div class="ld ld-ring ld-spin"></div></div>
+				    <div class="btn btn-default ld-over" id="<%= host %>_check_btn">Check<div class="ld ld-ring ld-spin"></div></div>
+				    <div class="btn btn-default ld-over" id="<%= host %>_update_btn">Update<div class="ld ld-ring ld-spin"></div></div>
+				    <div class="btn btn-default ld-over" id="<%= host %>_reboot_btn">Reboot<div class="ld ld-ring ld-spin"></div></div>
+				    <div class="btn btn-default ld-over" id="<%= host %>_install_btn">Install<div class="ld ld-ring ld-spin"></div></div>
+				    <div class="btn btn-default ld-over" id="<%= host %>_shutdown_btn">Shutdown<div class="ld ld-ring ld-spin"></div></div>
+					
+					<div id="<%= host %>_info"></div>
+
+				  </div>
+				</div>
+			</div>
+		  	<!-- end of card -->
+<!-- 		  
+						<div class="alert" id="<%= host %>_ping_info">
+						  <span class="closebtn">&times;</span>  
+						  <strong>Danger!</strong> Indicates a dangerous or potentially negative action.
+						</div>
+
+						<div class="alert success" id="<%= host %>_mem_info">
+						  <span class="closebtn">&times;</span>  
+						  <strong>Success!</strong> Indicates a successful or positive action.
+						</div>
+ -->
+<!-- 						<div class="alert info" id="<%= host %>_info">
+						  <span class="closebtn">&times;</span>  
+						  <strong>Info!</strong> <p>Indicates a neutral informative change or action.</p>
+						</div> -->
+<!-- 
+						<div class="alert warning" id="<%= host %>_last_run">>
+						  <span class="closebtn">&times;</span>  
+						  <strong>Warning!</strong> Indicates a warning that might need attention.
+						</div>
+
+						<div class="alert warning" id="<%= host %>_info">
+						  <span class="closebtn">&times;</span>  
+						  <strong>Warning!</strong> Indicates a warning that might need attention.
+						</div>
+ -->		  </div>
+ 		
+
+ 		
+
+ 		<% }); %>
+	</div>
+
+<!-- 
+
+				<table border="1" width="100%">
+				<tr><td width="5%"><b>Server</b></td>
+					<td width="15%"><b>Ping</b></td>
+					<td width="10%"><b>Memory</b></td>
+					<td width="10%"><b>Disk</b></td>
+					<td width="5%"><b>Check</b></td>
+					<td width="5%"><b>Auto</b></td>
+					<td width="10%"><b>Last Run</b></td>
+					<td width="10%"><b>Shutdown</b></td>
+					<td width="10%"><b>Reboot</b></td>
+					<td width="10%"><b>Install</b></td>
+					<td width="10%"><b>Update</b></td>
+
+
+				</tr>
+				<% hosts.forEach(function(host) {%>
+				<tr>
+					<td><%= host %></td>	
+					<td><div id="<%= host %>_ping_info"></div></td>		  
+					<td><div id="<%= host %>_mem_info"></div></td>
+					<td><div id="<%= host %>_disk_info"></div></td>
+					<td><input type="button" id="<%= host %>_check_btn" value="Check"></input></td>
+					<td><input type="checkbox" id="<%= host %>_auto"></input></td>
+					<td><div id="<%= host %>_last_run"></div></td>
+					<td><input type="button" id="<%= host %>_shutdown_btn" value="Shutdown"></input></td>
+					<td><input type="button" id="<%= host %>_reboot_btn" value="Reboot"></input></td>
+					<td><input type="button" id="<%= host %>_install_btn" value="Install"></input></td>
+					<td><input type="button" id="<%= host %>_update_btn" value="Update"></input></td>
+				</tr>
+
+				<tr><td colspan="11"><div id="<%= host %>_info"></div></tr>
+
+				<% }); %>
+
+				</table>
+		
+ -->	
+	
+  </div>  
   </body>
 </html>

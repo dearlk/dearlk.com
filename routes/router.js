@@ -1,12 +1,14 @@
 var express = require('express');
 var router = express.Router();
 var User = require('../models/user');
-
+var ansible = require('../controllers/ansible')
+var Ansible = require('node-ansible');
+var path = require('path');
 
 // GET route for reading data
 router.get('/', function (req, res, next) {
   if (req.session.userId) {
-    res.redirect('/profile');
+    res.redirect('/dashboard');
   }
   else {
     res.render('login')
@@ -18,7 +20,7 @@ router.get('/dashboard', function (req, res, next) {
     res.render('dashboard',{username: req.session.userId, email: req.session.email});
   }
   else {
-    res.render('/')
+    return res.redirect('/')
   }
 });
 
@@ -112,6 +114,160 @@ router.get('/logout', function (req, res, next) {
       }
     });
   }
+});
+
+
+// GET for ping
+router.get('/pingServer', function (req, res, next) {
+   var host = req.query.host;
+   console.log("host="+host)
+   var ping_command = new Ansible.AdHoc().hosts(host).module('ping');
+   var promise = ping_command.exec();
+   promise.then(function(result) {
+      console.log(result.output);
+      console.log(result.code);
+       try {
+        var data = result.output;
+        data = data.replace(/^.*/,'{');
+        var jdata = JSON.parse(data);
+        var info = {
+                     "changed": jdata.changed,
+                     "ping": jdata.ping,
+                     "code": 0
+                   };
+        console.log(info);
+
+      } catch (err) {
+        console.log("catched here................");
+        console.error(err);
+      }
+      res.send(info);
+
+  },function(err) {
+       //console.error(err);
+       var data = err.message.replace(/^.*/,'{');
+       var jdata = JSON.parse(data);
+       var info = {
+                     "error": "UNREACHABLE",
+                     "msg": jdata.msg,
+                     "code": -1
+                   };
+       console.log("in error:" + err);
+       console.log(info);
+       res.send(info);
+    }) 
+
+});
+
+
+// GET for checkServer
+router.get('/checkServer', function (req, res, next) {
+   var host = req.query.host;
+   console.log("checkServer:host=" + host)
+   var command = new Ansible.AdHoc().hosts(host).module('setup');
+   var promise = command.exec();
+   promise.then(function(result) {
+      console.log(result.code);
+      try {
+        var data = result.output;
+        data = data.replace(/^.*/,'{');
+        var jdata = JSON.parse(data);
+        var info = {
+                     "mem": jdata.ansible_facts.ansible_memory_mb.real,
+                     "disk": jdata.ansible_facts.ansible_mounts[0],
+                     "ping": 0
+                   };
+        console.log(info);
+
+      } catch (err) {
+        console.log("catched here................");
+        console.error(err);
+      }
+      res.send(info);
+
+  },function(err) {
+       //console.error(err);
+       var data = err.message.replace(/^.*/,'{');
+       var jdata = JSON.parse(data);
+       var info = {
+                     "error": "UNREACHABLE",
+                     "msg": jdata.msg,
+                     "ping": -1
+                   };
+       console.log("in error:" + err);
+       console.log(info);
+       res.send(info);
+    })   
+});
+
+
+// GET for actionServer
+router.get('/actionServer', function (req, res, next) {
+   var host = req.query.host;
+   var action = req.query.action;
+   console.log("actionServer:host=" + host + ", action="+action);
+   
+   var command=null;
+   var promise=null;
+   var playbook = null;
+   var shutdown_playbook = path.join(__dirname, "../playbooks/shutdown");
+   console.log("shutdown_playbook:"+shutdown_playbook);
+   //return;
+     //if (action == "shutdown"){
+       // command = new Ansible.AdHoc().hosts(host).module('shell').args('-s /sbin/shutdown +1'); 
+     //}else 
+     if (action=="reboot"){
+        //command = new Ansible.AdHoc().hosts(host).module('shell').args('-s /sbin/shutdown -r +1'); 
+        command = new Ansible.Playbook().playbook(shutdown_playbook).variables({ host: host });
+     }
+     //else if (action=="update"){
+       // command = new Ansible.AdHoc().hosts(host).module('shell').args('sudo apt-get update && sudo apt-get upgrade -y'); 
+     //}
+   console.log('executing now...');
+   command.verbose('v');
+   //command.asSudo();
+   //command.su('root');
+   promise = command.exec();
+
+   promise.then(function(result) {
+      
+      console.log("==================================================================================================");
+      console.log(result.output);
+      console.log(result.code);
+      console.log("==================================================================================================");
+
+      try {
+        //var data = result.output;
+        //data = data.replace(/^.*/,'{');
+        //var jdata = JSON.parse(data);
+        var info = {
+ 
+                     "output": result.output,
+                     "code": result.code
+                    };
+ 
+        console.log(info);
+
+      } catch (err) {
+        console.log("catched here................");
+        console.error(err);
+      }
+      res.send(info);
+
+  },function(err) {
+       //console.error(err);
+       //var data = err.message.replace(/^.*/,'{');
+       //var jdata = JSON.parse(data);
+       var info = {
+                     
+                     "msg": err.message,
+                     "code": -1
+                   };
+
+       console.log("in error:" + err);
+       console.log(info);
+       res.send(info);
+    })   
 });
 
 module.exports = router;
