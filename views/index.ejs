@@ -3,175 +3,272 @@
   <head>
     <!-- Required meta tags -->
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-    <link href="https://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <!-- Add icon library -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="/css/loading.css"/>
+  <link rel="stylesheet" type="text/css" href="/css/loading-btn.css"/>
+    <title>dearlk.com</title>
+  
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.1.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+  <% var hosts = ["dev", "test", "uat", "live"]; %>
+    
+   
 
-    <title>dearlk</title>
+
+
+
+    <script type="text/javascript">
+      $(document).ready(function() {
+        
+        var close = document.getElementsByClassName("closebtn");
+        var i;
+          for (i = 0; i < close.length; i++) {
+              close[i].onclick = function(){
+                  var div = this.parentElement;
+                  div.style.opacity = "0";
+                  setTimeout(function(){ div.style.display = "none"; }, 600);
+              }
+          }
+
+        //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        // pingServer 
+        //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        function pingServer(server){
+            $("#"+server+"_ping_btn").addClass('running');
+            var parameters = {host: server};
+            $.get('/pingServer',parameters, function(data) {
+            $("#"+server+"_ping_btn").removeClass('running');
+            var last_run = new Date();
+                if (data.code == "-1"){
+                  $("#"+server+"_info").removeClass('info');
+                  //$("#"+server+"_ping_btn").css("background-color","red");
+                }else{
+                  $("#"+server+"_info").removeClass('info').addClass('success');
+                  //$("#"+server+"_ping_btn").css("background-color","green");
+                }
+                //$("#"+server+"_last_run").html(last_run);
+                $("#"+server+"_info").find("p").html(data.ping);
+                $("#"+server+"_info").show();
+            });
+        }
+
+
+        //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        // checkServer 
+        //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        function checkServer(server){
+          $("#"+server+"_check_btn").addClass('running');
+            var parameters = {host: server};
+            $.get('/checkServer',parameters, function(data) {
+                //$.each( data, function( key, val ) {
+              //  alert("<li id='" + key + "'>" + val + "</li>");
+              //});
+            var last_run = new Date();
+
+                if (data.ping == "-1"){
+                  $("#"+server+"_info").html(data.msg);
+                  $("#"+server+"_info").removeClass("info");
+                  //$("#"+server+"_check_btn").removeClass('running');
+                  //$("#"+server+"_check_btn").css("background-color","red");
+                  //$("#"+server+"_last_run").html(last_run);
+                  
+                }else{
+                  
+                  //$("#"+server+"_check_btn").css("background-color","green");
+                  $("#"+server+"_info").addClass("success");
+
+                  var disk_total = Math.round ((((data.disk.block_total*data.disk.block_size)/1024)/1024)/1024);
+                  var disk_available = Math.round ((((data.disk.block_available*data.disk.block_size)/1024)/1024)/1024);
+                  var disk_used = Math.round ((((data.disk.block_used*data.disk.block_size)/1024)/1024)/1024);
+                  
+                  $("#"+server+"_info").find('p').html("Ping->"+ data.ping + "<br>Memory->free: "+data.mem.free+"M, total: "+data.mem.total+"M, used: " + data.mem.used+"M <br>Disk-> available: " + disk_available + "G, total: " + disk_total + "G, used: " + disk_used+"G");
+                  $("#"+server+"_info").removeClass('info').addClass('success');
+                
+              }
+
+                  $("#"+server+"_info").show();
+                  $("#"+server+"_last_run").html(last_run);
+                  $("#"+server+"_check_btn").removeClass('running');
+            });
+        }
+
+        //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        // actionServer 
+        //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        function actionServer(server, task){
+          $("#"+server+"_" + task + "_btn").addClass('running');
+          //$("#"+server+"_check_btn").addClass('running');
+          //var parameters = {host: server + ".delapic", action: task};
+          var parameters = {host: server, action: task};
+
+            $.get('/actionServer', parameters, function(data) {
+                //$.each( data, function( key, val ) {
+              //  alert("<li id='" + key + "'>" + val + "</li>");
+              //});
+            $("#"+server+"_" + task + "_btn").removeClass('running');
+            var last_run = new Date();
+                //alert('got back now...');
+                if (data.code == "-1"){
+                  $("#"+server+"_info").find('p').html(data.msg);
+                  $("#"+server+"_info").removeClass("info");
+                  //$("#"+server+"_" + task + "_btn").removeAttr("disabled");
+                  //$("#"+server+"_" + task + "_btn").css('background-color','red');
+                }else if (data.code == "0") {
+                  $("#"+server+"_info").find('p').html(data.output);
+                  $("#"+server+"_info").removeClass("info").addClass('success');
+                  //$("#"+server+"_last_run").html(last_run);
+                  //$("#"+server+"_" + task + "_btn").removeAttr("disabled"); 
+                  //$("#"+server+"_" + task + "_btn").css('background-color','green');
+                }
+                
+                $("#"+server+"_info").show();
+
+            });
+        }
+
+        //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        // butten event handlers
+        //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        //$("#dev_check_btn").click(function(){checkServer("dev")});
+        //$("#test_check_btn").click(function(){checkServer("test")});
+        //$("#uat_check_btn").click(function(){checkServer("uat")});
+        //$("#live_check_btn").click(function(){checkServer("live")});
+        //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        // auto refresh handlers  
+        //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        <% hosts.forEach(function(host) {%>
+          $("#<%= host %>_ping_btn").click(function(){pingServer("<%= host %>")});
+          $("#<%= host %>_check_btn").click(function(){checkServer("<%= host %>")});
+          $("#<%= host %>_shutdown_btn").click(function(){actionServer("<%= host %>", "shutdown")});
+          $("#<%= host %>_reboot_btn").click(function(){actionServer("<%= host %>","reboot")});
+          $("#<%= host %>_install_btn").click(function(){actionServer("<%= host %>","install")});
+          $("#<%= host %>_update_btn").click(function(){actionServer("<%= host %>","update")});
+
+          var <%= host %>_handler = null;
+          $("#<%= host %>_auto").click(function(){
+            var auto = $("#<%= host %>_auto").prop('checked');  
+            if (auto == true){
+              <%= host %>_handler = setInterval(function () {checkServer("<%= host %>")}, 60 * 1000);
+            } else
+            {
+              clearInterval(<%= host %>_handler);
+            }
+          });
+          //if auto already selected  
+          if ($("#<%= host %>_auto").prop('checked')) {
+            checkServer("<%= host %>");
+            <%= host %>_handler = setInterval(function () {checkServer("<%= host %>")}, 60 * 1000);
+          }
+        <% }); %>
+      }); 
+    </script>
+
     <style>
-    body {
-    font: 20px "Montserrat", sans-serif;
-    line-height: 1.8;
-    color: #f5f6f7;
-}
+    /* Style buttons */
+    .buttonload {
+        background-color: #4CAF50; /* Green background */
+        border: none; /* Remove borders */
+        color: white; /* White text */
+        padding: 12px 16px; /* Some padding */
+        font-size: 16px /* Set a font size */
+    }
+    .btn {
+        border: none; /* Remove borders */
+        color: white; /* Add a text color */
+        padding: 10px 10px; /* Add some padding */
+        cursor: pointer; /* Add a pointer cursor on mouse-over */
+    }
 
-p {font-size: 16px;}
-.margin {margin-bottom: 45px;}
-      .bg-1 {
-       background-color: #1abc9c; /* Green */
-        color: #ffffff;
-      }
-      .bg-2 {
-      background-color: #474e5d; /* Dark Blue */
-      color: #ffffff;
-      }
-      .bg-3 {
-      background-color: #ffffff; /* White */
-      color: #555555;
-      }
-      .container-fluid {
-        padding-top: 70px;
-        padding-bottom: 70px;
-      }
-      .navbar {
-    padding-top: 15px;
-    padding-bottom: 15px;
-    border: 0;
-    border-radius: 0;
-    margin-bottom: 0;
-    font-size: 12px;
-    letter-spacing: 5px;
+      .success {background-color: #4CAF50;} /* Green */
+      .success:hover {background-color: #46a049;}
+
+      .info {background-color: #2196F3;} /* Blue */
+      .info:hover {background: #0b7dda;}
+
+      .warning {background-color: #ff9800;} /* Orange */
+      .warning:hover {background: #e68a00;}
+
+      .danger {background-color: #f44336;} /* Red */ 
+      .danger:hover {background: #da190b;}
+
+      .btn-default {background-color: #2196F3;; color: white;} /* Gray */ 
+      .btn-default:hover {background: #ddd; color:black;}
+
+      .card-title {color:blue;}
+      .alert {
+            padding: 10px;
+            background-color: #f44336;
+            color: white;
+            opacity: 1;
+            transition: opacity 0.6s;
+            margin-bottom: 5px;
+        }
+
+        .alert.success {background-color: #4CAF50;}
+        .alert.info {background-color: #2196F3;}
+        .alert.warning {background-color: #ff9800;}
+
+        .closebtn {
+            margin-left: 15px;
+            color: white;
+            font-weight: bold;
+            float: right;
+            font-size: 22px;
+            line-height: 20px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .closebtn:hover {
+            color: black;
+        }
+.alert {
+    opacity: 1;
+    transition: opacity 0.6s; /* 600ms to fade out */
 }
-.bg-4 {
-    background-color: #2f2f2f;
-    color: #ffffff;
-}
-.navbar-nav li a:hover {
-    color: #ff0000 !important;
-}
-.navbar-nav a {
-    color: white !important;
-}
-.navbar-brand { color:white;}
-    </style>
+       
+  </style>
   </head>
-  <body>
-   <nav class="navbar bg-primary">
-  <div class="container">
-    <div class="navbar-header text-white">
-      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-      </button>
-      <a class="navbar-brand" href="#">dearlk</a>
-    </div>
-    <div class="collapse navbar-collapse" id="myNavbar">
-      <ul class="nav navbar-nav navbar-right">
-        <li><a href="#">WHO</a></li>
-        <li><a href="#">WHAT</a></li>
-        <li><a href="#">WHERE</a></li>
-      </ul>
-    </div>
-  </div>
-</nav> 
 
-
-<!--header section-->
-<header>
-<div class="jumbotron jumbotron-fluid" id="banner">       
-<div class="parallax text-center" style="background-image: url(images/cover.jpg);">
-<div class="parallax-pattern-overlay">
-<div class="container text-center" style="height:580px;padding-top:170px;">
-<a href="#"><img id="site-title" src="img/logo.png" alt="logo"/></a>
-<h2 class="display-2">Boostrap 4 Alpha is here!</h2>
-<h3 class="learn">Wanna know how to use it?</h3>
-</div>
-</div>
-</div>
-</header>
-
-        <div class="container-fluid bg-info text-center">
-          <h3>Who Am I?</h3>
-          <img src="images/bird150.jpg" class="img-responsive img-circle" style="display:inline" alt="Bird">
-          <h3>I'm an adventurer</h3>
+<body>
+  <div class="container-fluid">
+  <% hosts.forEach(function(host) {%>
+  <div class="row">  
+      <div class="col">
+        <!-- start of card -->
+        <div class="card" style="width: 100%;">
+          <!-- <div class="parallax text-center" style="background-image: url(/images/cover-a.jpg);"> -->
+          <div class="parallax text-center">
+          <div class="card-body">
+            <h3 class="card-title"><%= host %></h3>
+           <div class="btn btn-default ld-over" id="<%= host %>_ping_btn">Ping<div class="ld ld-ring ld-spin"></div></div>
+            <div class="btn btn-default ld-over" id="<%= host %>_check_btn">Check<div class="ld ld-ring ld-spin"></div></div>
+            <div class="btn btn-default ld-over" id="<%= host %>_update_btn">Update<div class="ld ld-ring ld-spin"></div></div>
+            <div class="btn btn-default ld-over" id="<%= host %>_install_btn">Install<div class="ld ld-ring ld-spin"></div></div>
+            <div class="btn btn-default ld-over" id="<%= host %>_reboot_btn">Reboot<div class="ld ld-ring ld-spin"></div></div>
+            <div class="btn btn-default ld-over" id="<%= host %>_shutdown_btn">Shutdown<div class="ld ld-ring ld-spin"></div></div>
+          </div>
         </div>
+      </div>
+        <!-- end of card -->
 
-        <div class="container-fluid text-center bg-primary">
-  <h3>What Am I?</h3>
-  <p>Lorem ipsum..</p>
-  <a href="#" class="btn btn-default btn-lg">
-  <span class="glyphicon glyphicon-search"></span> Search
-</a>
-</div>
+          <div class="alert info" id="<%= host %>_info" style="display:none;">
+            <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span> 
+            <p>This is an alert box.</p>
+          </div>  
 
-         <div class="container-fluid bg-3 text-center">
-  <h3>Where To Find Me?</h3>
-  <div class="row">
-    <div class="col-sm-4">
-      <p>Lorem ipsum..</p>
-      <img src="images/birds1.jpg"  class="img-responsive" style="width:100%" alt="Image">
-    </div>
-    <div class="col-sm-4">
-      <p>Lorem ipsum..</p>
-      <img src="images/birds2.jpg"  class="img-responsive" style="width:100%" alt="Image">
-    </div>
-    <div class="col-sm-4">
-      <p>Lorem ipsum..</p>
-      <img src="images/birds3.jpg"  class="img-responsive" style="width:100%" alt="Image">
     </div>
   </div>
-</div> 
+  <p>&nbsp;</p>
+ <% }); %>    
+ </div>  
 
-
-<!--Contact Us-->
-<!--
-<section class="contact" id="contact">
-<div class="container">
-<div class="row">
-<div class="col-lg-12">
-<div class="heading">
-<img class="dividerline" src="img/sep.png" alt="">
-<h2>Contact Us</h2>
-<img class="dividerline" src="img/sep.png" alt="">
-<h3>Feel free to reach out for any questions!
-</h3>
-</div>
-</div>
-</div>
-</div>
-<div class="container mx-width">
-<div class="row">
-<div class="done">
-<div class="alert alert-success">
-<button type="button" class="close" data-dismiss="alert">×</button>
-Your message has been sent. Thank you!
-</div>
-</div>
-<div class="col-md-12">
-<form>
-<fieldset class="form-group">
-<input type="text" class="form-control" id="Name" placeholder="Name">
-</fieldset>
-<fieldset class="form-group">
-<input type="email" class="form-control" id="Email" placeholder="Email">
-</fieldset>
-<fieldset class="form-group">
-<textarea class="form-control" rows="3" placeholder="Message"></textarea>
-</fieldset>
-<button type="submit" class="contact submit">Submit</button>
-</form>
-</div>
-</div>
-</div>
-</section>
--->
-
-<footer class="container-fluid bg-4 text-center">
-  <p>Bootstrap Theme Made By <a href="https://www.w3schools.com">www.w3schools.com</a></p>
-</footer>
-  </body>
+</body>
 </html>
-

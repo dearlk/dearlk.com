@@ -1,14 +1,10 @@
 ---
-- name: restart server
+- name: Shutdown server
   hosts: "{{ host }}"
   tasks:
-  - name: Reboot server
-    shell: sleep 2 && shutdown -r now "Ansible updates triggered"
+  - name: Shutdown server
+    shell: shutdown -h "Ansible shutdown triggered"
     async: 1
     poll: 0
     become: true
     ignore_errors: true
-
-  - name: waiting for the server to come back
-    local_action: wait_for host={{ host }} state=started port=22 delay=15 timeout=500 connect_timeout=15
-    sudo: false

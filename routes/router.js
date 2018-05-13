@@ -8,7 +8,8 @@ var path = require('path');
 // GET route for reading data
 router.get('/', function (req, res, next) {
   if (req.session.userId) {
-    res.redirect('/dashboard');
+    //res.redirect('/dashboard');
+    res.render('index');
   }
   else {
     res.render('login')
@@ -37,7 +38,8 @@ router.post('/login', function (req, res, next) {
       } else {
         req.session.userId = user._id;
         req.session.email = user.email;
-        return res.redirect('/dashboard');
+        //return res.redirect('/dashboard');
+        return res.redirect('/');
       }
     });
   } else {
@@ -120,8 +122,9 @@ router.get('/logout', function (req, res, next) {
 // GET for ping
 router.get('/pingServer', function (req, res, next) {
    var host = req.query.host;
+
    console.log("host="+host)
-   var ping_command = new Ansible.AdHoc().hosts(host).module('ping');
+   var ping_command = new Ansible.AdHoc().hosts(host+".delapic").module('ping');
    var promise = ping_command.exec();
    promise.then(function(result) {
       console.log(result.output);
@@ -163,6 +166,7 @@ router.get('/pingServer', function (req, res, next) {
 // GET for checkServer
 router.get('/checkServer', function (req, res, next) {
    var host = req.query.host;
+   host = host + ".delapic";
    console.log("checkServer:host=" + host)
    var command = new Ansible.AdHoc().hosts(host).module('setup');
    var promise = command.exec();
@@ -204,6 +208,7 @@ router.get('/checkServer', function (req, res, next) {
 // GET for actionServer
 router.get('/actionServer', function (req, res, next) {
    var host = req.query.host;
+   host = host + ".delapic";
    var action = req.query.action;
    console.log("actionServer:host=" + host + ", action="+action);
    
@@ -211,18 +216,25 @@ router.get('/actionServer', function (req, res, next) {
    var promise=null;
    var playbook = null;
    var shutdown_playbook = path.join(__dirname, "../playbooks/shutdown");
-   console.log("shutdown_playbook:"+shutdown_playbook);
+   var reboot_playbook = path.join(__dirname, "../playbooks/reboot");
+   var update_playbook = path.join(__dirname, "../playbooks/update");
+   
    //return;
      //if (action == "shutdown"){
        // command = new Ansible.AdHoc().hosts(host).module('shell').args('-s /sbin/shutdown +1'); 
      //}else 
      if (action=="reboot"){
         //command = new Ansible.AdHoc().hosts(host).module('shell').args('-s /sbin/shutdown -r +1'); 
+        console.log("playbook:"+reboot_playbook);
+        command = new Ansible.Playbook().playbook(reboot_playbook).variables({ host: host });
+     }else if (action=="update"){
+        //command = new Ansible.AdHoc().hosts(host).module('shell').args('sudo apt-get update && sudo apt-get upgrade -y'); 
+        console.log("playbook:"+update_playbook);
+        command = new Ansible.Playbook().playbook(update_playbook).variables({ host: host });
+     }else if (action == "shutdown"){
+        console.log("playbook:"+shutdown_playbook);
         command = new Ansible.Playbook().playbook(shutdown_playbook).variables({ host: host });
      }
-     //else if (action=="update"){
-       // command = new Ansible.AdHoc().hosts(host).module('shell').args('sudo apt-get update && sudo apt-get upgrade -y'); 
-     //}
    console.log('executing now...');
    command.verbose('v');
    //command.asSudo();
